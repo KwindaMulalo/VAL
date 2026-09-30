@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Valentine's Proposal</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100svh;
+            overflow-x: hidden;
+            background: linear-gradient(to bottom, #f5cac3, #f7ede2);
+            font-family: Arial, sans-serif;
+        }
+
+
+        /* ==============================
+           MAIN CONTENT
+        ============================== */
+
+        #mainContent {
+            position: relative;
+
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100svh;
+
+            text-align: center;
+
+            padding: 6vh 16px 24px;
+        }
+
+
+        h1 {
+            position: relative;
+            z-index: 20;
+
+            color: #ff477e;
+
+            margin-top: 0;
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            line-height: 1.2;
+        }
+
+
+        #valentineImage {
+            position: relative;
+            z-index: 20;
+
+            width: min(300px, 80vw);
+            max-height: 40vh;
+            max-height: 40svh;
+
+            height: auto;
+
+            border-radius: 5px;
+        }
+
+
+        /* ==============================
+           BUTTON AREA
+        ============================== */
+
+        #buttonArea {
+            position: relative;
+
+            margin-top: 25px;
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+
+        /* ==============================
+           YES BUTTON
+
+           This button becomes the
+           green background.
+        ============================== */
+
+        #yesButton {
+            position: relative;
+
+            width: 120px;
+            height: 45px;
+
+            background-color: #06d6a0;
+            color: white;
+
+            font-size: 25px;
+
+            border: none;
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            z-index: 5;
+
+            transition:
+                top 0.55s ease,
+                left 0.55s ease,
+                width 0.55s ease,
+                height 0.55s ease,
+                border-radius 0.55s ease,
+                font-size 0.55s ease;
+        }
+
+
+        /* Once the Yes button starts growing */
+
+        #yesButton.growing {
+            position: fixed;
+
+            margin: 0;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            /*
+                Behind the heading and image
+            */
+            z-index: 5;
+        }
+
+
+        /* ==============================
+           NO BUTTON
+        ============================== */
+
+        #no {
+            position: relative;
+
+            width: 130px;
+            min-height: 45px;
+
+            padding: 5px 8px;
+
+            background-color: #ef476f;
+            color: white;
+
+            border: none;
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            z-index: 30;
+
+            transition:
+                left 0.3s ease,
+                top 0.3s ease,
+                opacity 0.4s ease;
+        }
+
+
+        #no.moving {
+            position: fixed;
+        }
+
+
+        /* ==============================
+           FINAL YES TEXT
+
+           Hidden until the fourth No.
+        ============================== */
+
+        #finalYes {
+            display: none;
+
+            position: fixed;
+
+            left: 50%;
+            top: 65%;
+
+            transform: translate(-50%, -50%);
+
+            z-index: 100;
+
+            color: white;
+
+            font-size: clamp(40px, 6vw, 80px);
+
+            font-weight: bold;
+
+            text-align: center;
+
+            cursor: pointer;
+
+            user-select: none;
+        }
+
+
+        #finalYes.show {
+            display: block;
+        }
+
+
+        #yesLabel {
+            display: none;
+            position: fixed;
+            z-index: 25;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 25px;
+            pointer-events: none;
+            user-select: none;
+            transition:
+                top 0.55s ease,
+                left 0.55s ease,
+                width 0.55s ease,
+                height 0.55s ease;
+        }
+
+
+        #yesLabel.show {
+            display: flex;
+        }
+
+
+        @media (max-width: 480px) {
+            #mainContent {
+                padding-top: 5svh;
+            }
+
+            #buttonArea {
+                gap: 8px;
+            }
+
+            #yesButton,
+            #no {
+                min-height: 48px;
+            }
+
+            #finalYes {
+                width: 100%;
+                padding: 0 16px;
+                font-size: clamp(36px, 12vw, 56px);
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div id="mainContent">
+
+
+        <h1>
+            Dzuukie, will you be my valentine?
+        </h1>
+
+
+        <img
+            id="valentineImage"
+            src="https://pbs.twimg.com/media/Fyk7XMnaEAI3PsB.jpg"
+            alt="Valentine's Day Image"
+        >
+
+
+        <div id="buttonArea">
+
+            <button id="yesButton">
+                Yes
+            </button>
+
+
+            <button id="no">
+                No
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+    <!--
+        Final YES text.
+
+        This appears above the green
+        background after the fourth No.
+    -->
+
+    <div id="finalYes">
+        YES ❤️
+    </div>
+
+    <div id="yesLabel" aria-hidden="true">Yes</div>
+
+
+
+    <script>
+
+        /* ==============================
+           GET ELEMENTS
+        ============================== */
+
+        const yesButton =
+            document.getElementById("yesButton");
+
+
+        const noButton =
+            document.getElementById("no");
+
+
+        const valentineImage =
+            document.getElementById("valentineImage");
+
+
+        const finalYes =
+            document.getElementById("finalYes");
+
+
+        const yesLabel =
+            document.getElementById("yesLabel");
+
+
+        let noClicks = 0;
+
+
+
+        /* ==============================
+           NO BUTTON MESSAGES
+        ============================== */
+
+        const noTexts = [
+
+            "Are you sure?",
+
+            "Please give me a chance pookie",
+
+            "Pookie please",
+
+            "Don't do this to me dookie :(",
+
+            "You're breaking my heart",
+
+            "I'm gonna cry"
+
+        ];
+
+
+
+        /* ==============================
+           IMAGES
+        ============================== */
+
+        const imageSources = [
+
+            "https://pbs.twimg.com/media/Fyk7XMnaEAI3PsB.jpg",
+
+            "https://media.tenor.com/BP70qe8X0J8AAAAe/crycat-crying-cat.png",
+
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9e71v7IfFLLS_1CfY2it3an-6XH1uROjTfU5c88AwRL8aRkqAYDmoFrm9gpbUqwNameo&usqp=CAU",
+
+            "https://i.pinimg.com/736x/cb/d8/3b/cbd83b534a315e809a9da2b8cd3ac3bf.jpg"
+
+        ];
+
+
+
+        /* ==============================
+           YES CLICK
+        ============================== */
+
+        yesButton.addEventListener(
+            "click",
+            sayYes
+        );
+
+
+        finalYes.addEventListener(
+            "click",
+            sayYes
+        );
+
+
+        function sayYes() {
+
+            alert(
+                "I love you! See you soon <3"
+            );
+
+        }
+
+
+
+        /* ==============================
+           NO CLICK
+        ============================== */
+
+        noButton.addEventListener(
+            "click",
+            handleNo
+        );
+
+
+        function handleNo() {
+
+
+            noClicks++;
+
+
+
+            /* ==========================
+               CHANGE IMAGE
+            ========================== */
+
+            const randomImage =
+                Math.floor(
+                    Math.random() *
+                    imageSources.length
+                );
+
+
+            valentineImage.src =
+                imageSources[randomImage];
+
+
+
+            /* ==========================
+               CHANGE NO TEXT
+            ========================== */
+
+            const randomText =
+                Math.floor(
+                    Math.random() *
+                    noTexts.length
+                );
+
+
+            noButton.innerText =
+                noTexts[randomText];
+
+
+
+            /* ==========================
+               FIRST NO
+
+               Lock Yes into its exact
+               current screen position.
+
+               Then start expanding.
+            ========================== */
+
+            if (noClicks === 1) {
+
+
+                const rect =
+                    yesButton.getBoundingClientRect();
+
+
+                yesButton.style.left =
+                    rect.left + "px";
+
+
+                yesButton.style.top =
+                    rect.top + "px";
+
+
+                yesButton.style.width =
+                    rect.width + "px";
+
+
+                yesButton.style.height =
+                    rect.height + "px";
+
+
+                yesLabel.style.left =
+                    rect.left + "px";
+
+
+                yesLabel.style.top =
+                    rect.top + "px";
+
+
+                yesLabel.style.width =
+                    rect.width + "px";
+
+
+                yesLabel.style.height =
+                    rect.height + "px";
+
+
+                yesLabel.classList.add("show");
+
+
+                yesButton.innerText = "";
+
+
+                yesButton.classList.add(
+                    "growing"
+                );
+
+
+                /*
+                    Force browser to recognise
+                    original position first.
+                */
+
+                yesButton.getBoundingClientRect();
+
+
+
+                /*
+                    FIRST GROWTH
+                */
+
+                yesButton.style.left =
+                    "32vw";
+
+
+                yesButton.style.top =
+                    "55vh";
+
+
+                yesButton.style.width =
+                    "36vw";
+
+
+                yesButton.style.height =
+                    "35vh";
+
+
+                yesLabel.style.left =
+                    "32vw";
+
+
+                yesLabel.style.top =
+                    "55vh";
+
+
+                yesLabel.style.width =
+                    "36vw";
+
+
+                yesLabel.style.height =
+                    "35vh";
+
+            }
+
+
+
+            /* ==========================
+               SECOND NO
+            ========================== */
+
+            else if (noClicks === 2) {
+
+
+                yesButton.style.left =
+                    "20vw";
+
+
+                yesButton.style.top =
+                    "35vh";
+
+
+                yesButton.style.width =
+                    "60vw";
+
+
+                yesButton.style.height =
+                    "60vh";
+
+
+                yesLabel.style.left =
+                    "20vw";
+
+
+                yesLabel.style.top =
+                    "35vh";
+
+
+                yesLabel.style.width =
+                    "60vw";
+
+
+                yesLabel.style.height =
+                    "60vh";
+
+            }
+
+
+
+            /* ==========================
+               THIRD NO
+            ========================== */
+
+            else if (noClicks === 3) {
+
+
+                yesButton.style.left =
+                    "8vw";
+
+
+                yesButton.style.top =
+                    "15vh";
+
+
+                yesButton.style.width =
+                    "84vw";
+
+
+                yesButton.style.height =
+                    "82vh";
+
+
+                yesLabel.style.left =
+                    "8vw";
+
+
+                yesLabel.style.top =
+                    "15vh";
+
+
+                yesLabel.style.width =
+                    "84vw";
+
+
+                yesLabel.style.height =
+                    "82vh";
+
+            }
+
+
+
+            /* ==========================
+               FOURTH NO
+
+               FULL SCREEN
+            ========================== */
+
+            else if (noClicks >= 4) {
+
+
+                /*
+                    Green Yes reaches every
+                    edge of the screen.
+                */
+
+                yesButton.style.left =
+                    "0";
+
+
+                yesButton.style.top =
+                    "0";
+
+
+                yesButton.style.width =
+                    "100vw";
+
+
+                yesButton.style.height =
+                    "100vh";
+
+
+                yesLabel.style.left =
+                    "0";
+
+
+                yesLabel.style.top =
+                    "0";
+
+
+                yesLabel.style.width =
+                    "100vw";
+
+
+                yesLabel.style.height =
+                    "100vh";
+
+
+                yesButton.style.borderRadius =
+                    "0";
+
+
+                /*
+                    Remove the old Yes text
+                    because the button is now
+                    the background.
+                */
+
+                yesButton.innerText = "";
+
+
+
+                /*
+                    Hide No
+                */
+
+                noButton.style.opacity =
+                    "0";
+
+
+                noButton.style.pointerEvents =
+                    "none";
+
+
+
+                /*
+                    Wait for the green growth
+                    animation to finish.
+
+                    Then display YES ❤️
+                    clearly above it.
+                */
+
+                setTimeout(
+                    function () {
+
+
+                        noButton.style.display =
+                            "none";
+
+
+                        finalYes.classList.add(
+                            "show"
+                        );
+
+
+                        yesLabel.classList.remove(
+                            "show"
+                        );
+
+
+                    },
+                    550
+                );
+
+            }
+
+
+
+            /* ==========================
+               MOVE NO BUTTON
+
+               Stop moving after click 4.
+            ========================== */
+
+            if (noClicks < 4) {
+
+                moveNoButton();
+
+            }
+
+        }
+
+
+
+        /* ==============================
+           MOVE NO RANDOMLY
+        ============================== */
+
+        function moveNoButton() {
+
+
+            noButton.classList.add(
+                "moving"
+            );
+
+
+            const maxX =
+                Math.max(
+                    0,
+                    window.innerWidth -
+                    noButton.offsetWidth
+                );
+
+
+            const maxY =
+                Math.max(
+                    0,
+                    window.innerHeight -
+                    noButton.offsetHeight
+                );
+
+
+            const randomX =
+                Math.floor(
+                    Math.random() *
+                    maxX
+                );
+
+
+            const randomY =
+                Math.floor(
+                    Math.random() *
+                    maxY
+                );
+
+
+            noButton.style.left =
+                randomX + "px";
+
+
+            noButton.style.top =
+                randomY + "px";
+
+        }
+
+    </script>
+
+
+</body>
+</html>
